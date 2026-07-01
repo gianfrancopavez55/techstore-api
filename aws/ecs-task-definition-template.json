@@ -1,0 +1,71 @@
+{
+  "family": "techstore-api-task",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": [
+    "FARGATE"
+  ],
+  "cpu": "256",
+  "memory": "512",
+  "executionRoleArn": "arn:aws:iam::<ACCOUNT_ID>:role/LabRole",
+  "taskRoleArn": "arn:aws:iam::<ACCOUNT_ID>:role/LabRole",
+  "containerDefinitions": [
+    {
+      "name": "techstore-api",
+      "image": "<ECR_IMAGE_URI>:latest",
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 8080,
+          "hostPort": 8080,
+          "protocol": "tcp"
+        }
+      ],
+      "environment": [
+        {
+          "name": "SPRING_DATASOURCE_URL",
+          "value": "jdbc:postgresql://<RDS_ENDPOINT>:5432/techstore"
+        },
+        {
+          "name": "SPRING_DATASOURCE_USERNAME",
+          "value": "admin"
+        },
+        {
+          "name": "SPRING_DATASOURCE_PASSWORD",
+          "value": "<RDS_PASSWORD>"
+        },
+        {
+          "name": "SPRING_JPA_DDL_AUTO",
+          "value": "update"
+        },
+        {
+          "name": "SPRING_SQL_INIT_MODE",
+          "value": "never"
+        },
+        {
+          "name": "AWS_REGION",
+          "value": "<AWS_REGION>"
+        },
+        {
+          "name": "TECHSTORE_AUDIT_ENABLED",
+          "value": "true"
+        },
+        {
+          "name": "TECHSTORE_AUDIT_QUEUE_URL",
+          "value": "<SQS_QUEUE_URL>"
+        },
+        {
+          "name": "TECHSTORE_JWT_SECRET",
+          "value": "miclavesupersecretamiclavesupersecretam"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/techstore-api",
+          "awslogs-region": "<AWS_REGION>",
+          "awslogs-stream-prefix": "ecs"
+        }
+      }
+    }
+  ]
+}

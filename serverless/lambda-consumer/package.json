@@ -1,0 +1,12 @@
+{
+  "name": "lambda-consumer",
+  "version": "1.0.0",
+  "description": "Funcion serverless simulada para consumir mensajes de pedidos desde RabbitMQ",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "amqplib": "^0.10.4"
+  }
+}

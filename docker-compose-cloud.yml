@@ -1,0 +1,36 @@
+services:
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: techstore_rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - techstore-cloud-net
+
+  lambda-consumer:
+    build:
+      context: ./serverless/lambda-consumer
+      dockerfile: Dockerfile
+    container_name: techstore_lambda_consumer
+    environment:
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+    depends_on:
+      - rabbitmq
+    networks:
+      - techstore-cloud-net
+
+  api-gateway:
+    image: nginx:alpine
+    container_name: techstore_api_gateway
+    ports:
+      - "80:80"
+    volumes:
+      - ./api-gateway/nginx.conf:/etc/nginx/nginx.conf:ro
+    networks:
+      - techstore-cloud-net
+
+networks:
+  techstore-cloud-net:
+    driver: bridge

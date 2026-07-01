@@ -1,0 +1,49 @@
+version: "3.8"
+
+services:
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - techstore-swarm-net
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  lambda-consumer:
+    image: techstore-lambda-consumer:latest
+    environment:
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+    networks:
+      - techstore-swarm-net
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  api-gateway:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    configs:
+      - source: nginx_config
+        target: /etc/nginx/nginx.conf
+    networks:
+      - techstore-swarm-net
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+networks:
+  techstore-swarm-net:
+    driver: overlay
+
+configs:
+  nginx_config:
+    file: ./api-gateway/nginx.conf
+    

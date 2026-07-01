@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: techstore_db_local
+    environment:
+      POSTGRES_DB: techstore
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin123
+    ports:
+      - "5432:5432"
+    volumes:
+      - techstore_postgres_data:/var/lib/postgresql/data
+
+volumes:
+  techstore_postgres_data:

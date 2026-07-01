@@ -1,0 +1,183 @@
+{
+  "info": {
+    "name": "TechStore AWS EP3",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health AWS",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{api_gateway_url}}/health",
+          "host": [
+            "{{api_gateway_url}}"
+          ],
+          "path": [
+            "health"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Login JWT AWS",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{api_gateway_url}}/auth/login",
+          "host": [
+            "{{api_gateway_url}}"
+          ],
+          "path": [
+            "auth",
+            "login"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"1234\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const json = pm.response.json();",
+              "if (json.token) { pm.environment.set('jwt_token', json.token); }"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Listar productos AWS",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{jwt_token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{api_gateway_url}}/api/productos",
+          "host": [
+            "{{api_gateway_url}}"
+          ],
+          "path": [
+            "api",
+            "productos"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Crear producto AWS",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{jwt_token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{api_gateway_url}}/api/productos",
+          "host": [
+            "{{api_gateway_url}}"
+          ],
+          "path": [
+            "api",
+            "productos"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Tablet TechStore Pro\",\n  \"descripcion\": \"Tablet Android para productividad\",\n  \"precio\": 249990,\n  \"stock\": 8,\n  \"categoria\": \"Tablets\",\n  \"activo\": true\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Modificar producto AWS",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{jwt_token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{api_gateway_url}}/api/productos/1",
+          "host": [
+            "{{api_gateway_url}}"
+          ],
+          "path": [
+            "api",
+            "productos",
+            "1"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Tablet TechStore Pro Actualizada\",\n  \"descripcion\": \"Tablet Android actualizada\",\n  \"precio\": 259990,\n  \"stock\": 10,\n  \"categoria\": \"Tablets\",\n  \"activo\": true\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Eliminar producto AWS",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{jwt_token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{api_gateway_url}}/api/productos/1",
+          "host": [
+            "{{api_gateway_url}}"
+          ],
+          "path": [
+            "api",
+            "productos",
+            "1"
+          ]
+        }
+      }
+    }
+  ]
+}

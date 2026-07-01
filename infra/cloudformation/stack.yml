@@ -1,0 +1,90 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >
+  Plantilla referencial para despliegue cloud de TechStore Cloud Platform.
+  Esta plantilla documenta los recursos equivalentes usados localmente debido a falta de acceso activo a AWS Academy.
+
+Resources:
+
+  TechStoreOrdersQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: techstore-order-created-queue
+      VisibilityTimeout: 30
+      MessageRetentionPeriod: 345600
+
+  TechStoreLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: techstore-lambda-execution-role
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Policies:
+        - PolicyName: techstore-lambda-sqs-policy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - sqs:ReceiveMessage
+                  - sqs:DeleteMessage
+                  - sqs:GetQueueAttributes
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: "*"
+
+  TechStoreOrderConsumerFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: techstore-order-consumer
+      Runtime: nodejs20.x
+      Handler: index.handler
+      Role: !GetAtt TechStoreLambdaExecutionRole.Arn
+      Code:
+        ZipFile: |
+          exports.handler = async (event) => {
+            console.log("Procesando mensajes desde SQS");
+            for (const record of event.Records) {
+              console.log(record.body);
+            }
+            return { statusCode: 200 };
+          };
+
+  TechStoreSQSEventSourceMapping:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      EventSourceArn: !GetAtt TechStoreOrdersQueue.Arn
+      FunctionName: !Ref TechStoreOrderConsumerFunction
+      BatchSize: 10
+      Enabled: true
+
+  TechStoreApiGateway:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: techstore-cloud-api-gateway
+      Description: API Gateway referencial para exponer microservicios TechStore Cloud.
+
+Outputs:
+
+  QueueName:
+    Description: Nombre de la cola SQS referencial
+    Value: !GetAtt TechStoreOrdersQueue.QueueName
+
+  LambdaName:
+    Description: Nombre de la funcion Lambda referencial
+    Value: !Ref TechStoreOrderConsumerFunction
+
+  ApiGatewayName:
+    Description: Nombre del API Gateway referencial
+    Value: !Ref TechStoreApiGateway
+  
